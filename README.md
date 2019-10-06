@@ -10,7 +10,7 @@
 
 |Карта классификации kNN|
 |-------------------|
-|![Карта классификации алгоритма kNN](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/Classification_kNN.png)|
+|![Карта классификации алгоритма kNN](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/neighbors/Classification_kNN.png)|
 
 В качестве обучающей выборке был взят набор "Ирисы Фишера", а в качестве функции расстояния было использованно Евклидово расстояние
 
