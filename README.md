@@ -45,7 +45,7 @@ LOO(k) алгоритма kNN|Карта классификации kNN, при 
 
 LOO(k) алгоритма kwNN|Карта классификации kwNN, при k = 6, q = 0.8
 :------------------:|:--------------------------------:
-![LOO для kwNN](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/neighbors/Loo_for_kwNN.png)|![Карта классификации алгоритма kwNN, k=6,q=0.8](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/neighbors/Classification_kwNN.png)
+![LOO для kwNN](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/neighbors/LOO_for_kwNN.png)|![Карта классификации алгоритма kwNN, k=6,q=0.8](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/neighbors/Classification_kwNN.png)
 
 На следующем примере наглядно продемонстрированно превосходство алгоритма классификации kwNN над алгоритмом kNN:
 
