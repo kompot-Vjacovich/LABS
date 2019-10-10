@@ -97,7 +97,7 @@ parsen <- function(dots, x, h=c(0.35), core=cG){
 
 |Квартическое ядро| Карта классификации и LOO
 :------------------:|:--------------------------------:
-![](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/parsen/LOO_parsen_Quart.png)|![](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/parsen/Classification_parsen_Quart.png)
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/parsen/LOO_parzen_Quart.png)|![](https://github.com/kompot-Vjacovich/LABS/blob/master/MetricAlgo/parsen/Classification_parsen_Quart.png)
 
 |Епанечниково ядро| Карта классификации и LOO
 :------------------:|:--------------------------------:
