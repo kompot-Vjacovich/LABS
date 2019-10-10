@@ -10,15 +10,15 @@
       <th>Точность</th>
     </tr>
     <tr>
-      <td>kwNN</td>
-      <td>k=19, q=0.2</td>
-      <td>0.04</td>
-    </tr>
-    <tr>
       <td>kNN</td>
       <td>k=6</td>
       <td>0.0333</td>
     </tr>
+    <tr>
+      <td>kwNN</td>
+      <td>k=19, q=0.8</td>
+      <td>0.04</td>
+    </tr>  
     <tr>
       <td>Парзеновское окно, Прямоугольное</td>
       <td>h=0.35</td>
