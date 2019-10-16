@@ -1,3 +1,4 @@
+library("plotrix")
 #Euclid distancne
 distance <- function(u, v)
 {
@@ -90,9 +91,7 @@ plotLOO <- function(dots, algo, kORq, letter, title="LOO") {
 }
 
 #Algo visualization
-plotAlg <- function(algo) {
-  dots <- iris[3:5]
-  
+plotAlg <- function(dots, algo) {
   colors <- c("setosa" = "red", "versicolor" = "green3", "virginica" = "blue")
   plot(dots[1:2], pch = 21, bg = colors[iris$Species], col = colors[iris$Species], ylim = c(0.0, 2.7))
   
@@ -145,10 +144,11 @@ cG <- function(z) dnorm(z) # Gaus
 #Parsen Windows
 parsen <- function(dots, x, h=c(0.35), core=cG){
   dots <- sortDist(dots, x)
+  count_classes <- dim(table(dots$Species))
   
   class <- list()
   
-  classes <- as.list(rep(0, 3))
+  classes <- as.list(rep(0, count_classes))
   names(classes) = levels(dots$Species)
   
   for (i in seq(length(h))) {
@@ -164,8 +164,88 @@ parsen <- function(dots, x, h=c(0.35), core=cG){
   }
   
   res <- unlist(class)
+  return(res)
 }
 
-plotAlg(parsen)
+#Potential functions
+potential <- function(dots, x, h=H, g=G, core=cG) {
+  dots <- sortDist(dots, x)
+  count_classes <- dim(table(dots$Species))
+  
+  classes <- rep(0, count_classes)
+  names(classes) <- levels(dots$Species)
+  
+  for (i in seq(length(dots[[1]]))) {
+    yi <- dots[i,]
+    classes[yi$Species] <- classes[yi$Species] + core(yi$Distance / h[i]) * g[i]
+  }
+    
+  if(max(classes) == 0) {
+    res <- "unknown"
+  }
+  else res <- names(which.max(classes))
+  
+  return(res) 
+}
+
+#Error counter
+error_cnt <- function(dots, h, g, core) {
+  error <- 0
+  
+  for (i in seq(length(dots[[1]]))) {
+    yi <- dots[i,]
+    res <- potential(dots, yi[1:2], h, g, core)
+    
+    error <- error + (yi$Species != res)
+  }
+  return(error)
+}
+
+#Find gamma
+find_gamma <- function(dots, h, maxError=5, core=cG){
+  len <- length(dots[[1]])
+  
+  g <- rep(0, len)
+  i <- 1
+  
+  while(error_cnt(dots, h, g, core) > maxError) {
+    yi <- dots[i,]
+    res <- potential(dots, yi[1:2], h, g, core)
+    
+    g[i] <- g[i] + (yi$Species != res)
+    
+    i <- sample(seq(len), 1)
+  }
+  return(g)
+}
+
+
+#Potential circles
+draw_circles <- function(dots, g, h) {
+  
+  colors <- c("setosa" = "red", "versicolor" = "green3", "virginica" = "blue")
+  plot(dots[1:2], pch = 21, bg = colors[iris$Species], col = colors[iris$Species], ylim = c(0.0, 2.7))
+  
+  max_gamma <- max(g)
+  
+  for (i in seq(length(g))) {
+    k <- g[i]/max_gamma
+    yi <- dots[i,]
+    
+    if(g[i] > 0) {
+      color = adjustcolor(colors[yi$Species], k /2 )
+      draw.circle(yi[,1], yi[,2], h[i], border = color, col = color)
+    }
+  }
+  
+}
+
+data <- iris[3:5]
+len <- length(data[[1]])
+H <- c(rep(1, len/3), rep(0.5, (2*len/3)))
+G <- find_gamma(data, H, maxError=5, core=cG)
+
+draw_circles(iris[3:5], g=G, h=H)
+#plotAlg(iris[3:5], potential)
 #plotLOO(iris[3:5], parsen, kORq=seq(0.1, 4, 0.05), "h", "LOO для Парзеновского окна")
 #example()
