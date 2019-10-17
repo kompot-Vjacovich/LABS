@@ -83,7 +83,7 @@ plotLOO <- function(dots, algo, kORq, letter, title="LOO") {
   
   min_point <- Loo[which.min(Loo$LOO),]
   
-  plot(Loo, type = "l", main = title, xlab = letter, ylab="îöåíêà")
+  plot(Loo, type = "l", main = title, xlab = letter, ylab="Ã®Ã¶Ã¥Ã­ÃªÃ ")
   points(min_point, pch=21, col="black", bg="red")
   
   txt <- paste0(paste0(letter,"="), min_point[1, letter], "\nLOO=", round(min_point[1, "LOO"], 5))
@@ -139,7 +139,7 @@ cR <- function(z) 0.5 * (abs(z)<=1) # Rectangle
 cT <- function(z) (1 - abs(z))*(abs(z)<=1) #  Triangle
 cQ <- function(z) (15/16)*(1 - z^2)^2 * (abs(z)<=1) # Quartic
 cE <- function(z) (3/4)*(1-z^2) * (abs(z)<=1) # Epanechnikovo
-cG <- function(z) dnorm(z) # Gaus
+cG <- function(z) (2*pi)^0.5 * exp(-0.5 * z*z) # Gaus
 
 #Parsen Windows
 parsen <- function(dots, x, h=c(0.35), core=cG){
@@ -169,7 +169,7 @@ parsen <- function(dots, x, h=c(0.35), core=cG){
 
 #Potential functions
 potential <- function(dots, x, h=H, g=G, core=cG) {
-  dots <- sortDist(dots, x)
+  
   count_classes <- dim(table(dots$Species))
   
   classes <- rep(0, count_classes)
@@ -177,7 +177,8 @@ potential <- function(dots, x, h=H, g=G, core=cG) {
   
   for (i in seq(length(dots[[1]]))) {
     yi <- dots[i,]
-    classes[yi$Species] <- classes[yi$Species] + core(yi$Distance / h[i]) * g[i]
+    dist <- distance(x, yi[1:2])
+    classes[yi$Species] <- classes[yi$Species] + core(dist / h[i]) * g[i]
   }
     
   if(max(classes) == 0) {
@@ -198,6 +199,7 @@ error_cnt <- function(dots, h, g, core) {
     
     error <- error + (yi$Species != res)
   }
+  cat("er:", error, "\n")
   return(error)
 }
 
@@ -213,6 +215,8 @@ find_gamma <- function(dots, h, maxError=5, core=cG){
     res <- potential(dots, yi[1:2], h, g, core)
     
     g[i] <- g[i] + (yi$Species != res)
+cat("i:", i, "\n")
+    print(g)
     
     i <- sample(seq(len), 1)
   }
@@ -231,7 +235,7 @@ draw_circles <- function(dots, g, h) {
   for (i in seq(length(g))) {
     k <- g[i]/max_gamma
     yi <- dots[i,]
-    
+    print(g[i])
     if(g[i] > 0) {
       color = adjustcolor(colors[yi$Species], k /2 )
       draw.circle(yi[,1], yi[,2], h[i], border = color, col = color)
@@ -240,12 +244,15 @@ draw_circles <- function(dots, g, h) {
   
 }
 
+#data <- rbind(iris[6:20,], iris[61:75,], iris[136:150,])
 data <- iris[3:5]
 len <- length(data[[1]])
+#H <- c(rep(1, len/3), rep(0.25, (2*len/3)))
 H <- c(rep(1, len/3), rep(0.5, (2*len/3)))
 G <- find_gamma(data, H, maxError=5, core=cG)
 
-draw_circles(iris[3:5], g=G, h=H)
+print(G)
+#draw_circles(iris[3:5], g=G, h=H)
 #plotAlg(iris[3:5], potential)
-#plotLOO(iris[3:5], parsen, kORq=seq(0.1, 4, 0.05), "h", "LOO äëÿ Ïàðçåíîâñêîãî îêíà")
+#plotLOO(iris[3:5], parsen, kORq=seq(0.1, 4, 0.05), "h", "LOO Ã¤Ã«Ã¿ ÃÃ Ã°Ã§Ã¥Ã­Ã®Ã¢Ã±ÃªÃ®Ã£Ã® Ã®ÃªÃ­Ã ")
 #example()
