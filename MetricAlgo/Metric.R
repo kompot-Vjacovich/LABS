@@ -83,7 +83,7 @@ plotLOO <- function(dots, algo, kORq, letter, title="LOO") {
   
   min_point <- Loo[which.min(Loo$LOO),]
   
-  plot(Loo, type = "l", main = title, xlab = letter, ylab="îöåíêà")
+  plot(Loo, type = "l", main = title, xlab = letter, ylab="mark")
   points(min_point, pch=21, col="black", bg="red")
   
   txt <- paste0(paste0(letter,"="), min_point[1, letter], "\nLOO=", round(min_point[1, "LOO"], 5))
@@ -199,7 +199,6 @@ error_cnt <- function(dots, h, g, core) {
     
     error <- error + (yi$Species != res)
   }
-  cat("er:", error, "\n")
   return(error)
 }
 
@@ -215,8 +214,6 @@ find_gamma <- function(dots, h, maxError=5, core=cG){
     res <- potential(dots, yi[1:2], h, g, core)
     
     g[i] <- g[i] + (yi$Species != res)
-cat("i:", i, "\n")
-    print(g)
     
     i <- sample(seq(len), 1)
   }
@@ -235,9 +232,8 @@ draw_circles <- function(dots, g, h) {
   for (i in seq(length(g))) {
     k <- g[i]/max_gamma
     yi <- dots[i,]
-    print(g[i])
     if(g[i] > 0) {
-      color = adjustcolor(colors[yi$Species], k /2 )
+      color = adjustcolor(colors[yi$Species], k /5 )
       draw.circle(yi[,1], yi[,2], h[i], border = color, col = color)
     }
   }
@@ -251,8 +247,8 @@ len <- length(data[[1]])
 H <- c(rep(1, len/3), rep(0.5, (2*len/3)))
 G <- find_gamma(data, H, maxError=5, core=cG)
 
-print(G)
-#draw_circles(iris[3:5], g=G, h=H)
+
+draw_circles(iris[3:5], g=G, h=H)
 #plotAlg(iris[3:5], potential)
-#plotLOO(iris[3:5], parsen, kORq=seq(0.1, 4, 0.05), "h", "LOO äëÿ Ïàðçåíîâñêîãî îêíà")
+#plotLOO(iris[3:5], parsen, kORq=seq(0.1, 4, 0.05), "h", "LOO")
 #example()
