@@ -19,6 +19,7 @@ draw_lines <- function(mu, mtx, title) { #n-мерное гауссовское 
   y <- seq(-4, 4, 8/200)
   z <- outer(x, y, N)
   
+  par(pty="s")
   contour(x, y, z, main=title)
   
 }  
