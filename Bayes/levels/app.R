@@ -78,6 +78,7 @@ server <- function(input, output, session) {
     z <- outer(x, y, N)
     
     par(pty="s")
+    add = F
     #contour(x, y, z, main=title)
     
     for (i in seq(0, 0.2, input$step)) {
