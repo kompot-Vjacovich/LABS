@@ -242,7 +242,7 @@ draw_lines <- function(mu, mtx, title) { #n-мерное гауссовское 
 |Математическое ожидание μ  | Матрица ковариаций σ | Визуализация
 :------------------:|:----------------------------:| :------------------:
 (0,0)| matrix(1,0,0,1) |![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/levels/lines1.png)
-(0,0)| matrix(1,1,0,1) |![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/levels/lines2.png)
+(0,0)| matrix(2,1,1,2) |![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/levels/lines2.png)
 (0,0)| matrix(3,0,0,1) |![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/levels/lines3.png)
 (0,0)| matrix(1,0,0,3) |![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/levels/lines4.png)
 
@@ -256,6 +256,61 @@ draw_lines <- function(mu, mtx, title) { #n-мерное гауссовское 
 Решающее правило принимает вид: 
 
 ![](https://camo.githubusercontent.com/8bc9dd137568ab3e91170c9160834d144265d638/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f61253238782532392533446172672532302535436d61785f25374279253543696e253230592537442532382535436c6e2532382535436c616d6264615f25374279253744505f792532392b25354373756d5f2537426a253344312537442535452537426e2537442535436c6e253238705f253742796a25374425323825354378695f6a253239253239253239)
+
+Реализация на R
+```R
+naive_bayes <- function(xl, len1, len2, P, lyambda) {
+  p <- function(ksi, mu, sigma) (1/(sigma*sqrt(2*pi)))*exp(-(ksi-mu)^2 / (2*sigma^2))
+  
+  calc_mu <- function(xl) sum(xl) / length(xl)
+  
+  calc_sigma <- function(xl, mu) sum((xl-mu)^2)/(length(xl)-1)
+  
+  classification <- function(x, classes, mu, sigma, Py, lyambda) {
+    classSum <- rep(0, length(classes))
+    names(classSum) <- classes
+    
+    for (i in 1:length(classes)) {
+      tmpSum <- 0
+      
+      for (j in 1:length(x)) {
+        tmP <- p(x[j], mu[i,j], sigma[i,j])
+        tmpSum <- tmpSum + log(tmP)
+      }
+      classSum[i] <- tmpSum + log(lyambda[i]*Py[i])
+    }
+    
+    return(names(which.max(classSum)))
+  }
+  
+  classify_all <- function(classes, mu, sigma, Py, lyambda) {
+    classifiedObj <- c()
+    
+    for(i in seq(min(mu[, 1]) - 5, max(mu[, 1]) + 5, 0.1)) {
+      for(j in seq(min(mu[, 2]) - 5, max(mu[, 2]) + 5, 0.1)) {
+        classifiedObj <- rbind(classifiedObj, c(i, j, classification(c(i, j), classes, mu, sigma, Py, lyambda)))
+      }
+    }
+    
+    return(classifiedObj)
+  }
+  
+  Py <- P
+  len <- len1 + len2
+  first_x <- xl[1:len1,1]
+  first_y <- xl[1:len1,2]
+  second_x <- xl[(len1+1):len,1]
+  second_y <- xl[(len1+1):len,2]
+  
+  mu <- rbind(c(calc_mu(first_x), calc_mu(first_y)), c(calc_mu(second_x), calc_mu(second_y)))
+  
+  sigma <- rbind(c(calc_sigma(first_x, mu[1,1]), calc_sigma(first_y, mu[1,2])), c(calc_sigma(second_x, mu[2,1]), calc_sigma(second_y, mu[2,2])))
+  
+  classes <- unique(xl[,ncol(xl)])
+  
+  classified <- classify_all(classes, mu, sigma, Py, lyambda)
+}
+```
 
 Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/naive/">shiny</a>
 
