@@ -2,28 +2,28 @@ library(shiny)
 
 ui <- fluidPage(
   
-  titlePanel("ÐÐ°Ð¸Ð²Ð½Ñ‹Ð¹ Ð±Ð°Ð¹ÐµÑÐ¾Ð²ÑÐºÐ¸Ð¹ ÐºÐ»Ð°ÑÑÐ¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€"),
+  titlePanel("Íàèâíûé áàéåñîâñêèé êëàññèôèêàòîð"),
   
   sidebarLayout(
     sidebarPanel(
       fluidRow(
-        column(6, sliderInput("n", "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² 1-Ð³Ð¾ ÐºÐ»Ð°ÑÑÐ°", 10, 100, 30, 1)),
-        column(6, sliderInput("m", "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² 2-Ð³Ð¾ ÐºÐ»Ð°ÑÑÐ°", 10, 100, 40, 1)),
+        column(6, sliderInput("n", "Êîëè÷åñòâî ýëåìåíòîâ 1-ãî êëàññà", 10, 100, 30, 1)),
+        column(6, sliderInput("m", "Êîëè÷åñòâî ýëåìåíòîâ 2-ãî êëàññà", 10, 100, 40, 1)),
         
-        column(6, sliderInput("lmbd1", "Ð›ÑÐ¼Ð±Ð´Ð° 1", 0.5, 2, 1, 0.01)),
-        column(6, sliderInput("lmbd2", "Ð›ÑÐ¼Ð±Ð´Ð° 2", 0.5, 2, 1, 0.01)),
+        column(6, sliderInput("lmbd1", "Ëÿìáäà 1", 0.5, 2, 1, 0.01)),
+        column(6, sliderInput("lmbd2", "Ëÿìáäà 2", 0.5, 2, 1, 0.01)),
         
-        column(6, sliderInput("mu11", "ÐœÑŽ11", 0, 6, 2, 0.1)), 
-        column(6, sliderInput("mu12", "ÐœÑŽ12", 0, 6, 4, 0.1)), 
-        column(6, sliderInput("mu21", "ÐœÑŽ21", 0, 4, 1, 0.1)),
-        column(6, sliderInput("mu22", "ÐœÑŽ22", 0, 4, 3, 0.1)),
+        column(6, sliderInput("mu11", "Ìþ11", 0, 6, 2, 0.1)), 
+        column(6, sliderInput("mu12", "Ìþ12", 0, 6, 4, 0.1)), 
+        column(6, sliderInput("mu21", "Ìþ21", 0, 4, 1, 0.1)),
+        column(6, sliderInput("mu22", "Ìþ22", 0, 4, 3, 0.1)),
         
-        column(6, sliderInput("sigma11", "Ð¡Ð¸Ð³Ð¼Ð°11", 0.1, 1, 0.7, 0.1)), 
-        column(6, sliderInput("sigma12", "Ð¡Ð¸Ð³Ð¼Ð°12", 0.1, 1, 0.6, 0.1)), 
-        column(6, sliderInput("sigma21", "Ð¡Ð¸Ð³Ð¼Ð°21", 0.1, 1, 1, 0.1)),
-        column(6, sliderInput("sigma22", "Ð¡Ð¸Ð³Ð¼Ð°22", 0.1, 1, 0.7, 0.1)),
+        column(6, sliderInput("sigma11", "Ñèãìà11", 0.1, 1, 0.7, 0.1)), 
+        column(6, sliderInput("sigma12", "Ñèãìà12", 0.1, 1, 0.6, 0.1)), 
+        column(6, sliderInput("sigma21", "Ñèãìà21", 0.1, 1, 1, 0.1)),
+        column(6, sliderInput("sigma22", "Ñèãìà22", 0.1, 1, 0.7, 0.1)),
         
-        column(12, sliderInput("P", "Ð’ÐµÑ€Ð¾ÑÑ‚Ð½Ð¾ÑÑ‚ÑŒ Ð¿Ð¾ÑÐ²Ð»ÐµÐ½Ð¸Ñ ÐšÐ»Ð°ÑÑÐ°1|ÐšÐ»Ð°ÑÑÐ°2", 0.01, 0.99, 0.5, 0.01))
+        column(12, sliderInput("P", "Âåðîÿòíîñòü ïîÿâëåíèÿ Êëàññà1|Êëàññà2", 0.01, 0.99, 0.5, 0.01))
       )
     ),
     
