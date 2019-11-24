@@ -259,12 +259,12 @@ draw_lines <- function(mu, mtx, title) { #n-мерное гауссовское 
 
 Реализация на R
 ```R
-naive_bayes <- function(xl, len1, len2, P, lyambda) {
+calc_mu <- function(xl) sum(xl) / length(xl)
+
+calc_sigma <- function(xl, mu) sum((xl-mu)^2)/(length(xl)-1)
+
+naive_bayes <- function(xl, len1, len2, P, lyambda, mu, sigma) {
   p <- function(ksi, mu, sigma) (1/(sigma*sqrt(2*pi)))*exp(-(ksi-mu)^2 / (2*sigma^2))
-  
-  calc_mu <- function(xl) sum(xl) / length(xl)
-  
-  calc_sigma <- function(xl, mu) sum((xl-mu)^2)/(length(xl)-1)
   
   classification <- function(x, classes, mu, sigma, Py, lyambda) {
     classSum <- rep(0, length(classes))
@@ -295,21 +295,23 @@ naive_bayes <- function(xl, len1, len2, P, lyambda) {
     return(classifiedObj)
   }
   
+  draw_plot <- function(xl, classifiedObj) {
+    n <- ncol(xl)
+    colors <- c("first"="red", "second"="green3")
+    plot(xl[, 1:(n-1)], pch = 21, bg = colors[xl[,n]], col = colors[xl[,n]], 
+         main = "Карта классификации нормального распределения", asp = 1)
+    points(classifiedObj[, 1:(n-1)], pch = 21, col = colors[classifiedObj[, n]])
+  }
+  
   Py <- P
   len <- len1 + len2
-  first_x <- xl[1:len1,1]
-  first_y <- xl[1:len1,2]
-  second_x <- xl[(len1+1):len,1]
-  second_y <- xl[(len1+1):len,2]
-  
-  mu <- rbind(c(calc_mu(first_x), calc_mu(first_y)), c(calc_mu(second_x), calc_mu(second_y)))
-  
-  sigma <- rbind(c(calc_sigma(first_x, mu[1,1]), calc_sigma(first_y, mu[1,2])), c(calc_sigma(second_x, mu[2,1]), calc_sigma(second_y, mu[2,2])))
   
   classes <- unique(xl[,ncol(xl)])
   
   classified <- classify_all(classes, mu, sigma, Py, lyambda)
+  draw_plot(xl, classified)
 }
+
 ```
 
 Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/naive/">shiny</a>
