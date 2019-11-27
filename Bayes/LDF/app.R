@@ -2,7 +2,7 @@ library(shiny)
 
 ui <- fluidPage(
   
-  titlePanel("Plug-in"),
+  titlePanel("Линейный дискриминант Фишера"),
   
   sidebarLayout(
     sidebarPanel(
@@ -15,9 +15,9 @@ ui <- fluidPage(
            column(6, sliderInput("s_mu21", "Мю21", 0, 4, 1, 0.1)),
            column(6, sliderInput("s_mu22", "Мю22", 0, 4, 3, 0.1)),
            
-           column(6, sliderInput("s_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
+           column(6, sliderInput("s_sigma11", "Сигма11", 0.1, 1, 0.6, 0.1)), 
            column(6, sliderInput("s_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
-           column(6, sliderInput("s_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
+           column(6, sliderInput("s_sigma21", "Сигма21", 0.1, 1, 0.7, 0.1)),
            column(6, sliderInput("s_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
            
            column(12, sliderInput("s_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
@@ -33,9 +33,9 @@ ui <- fluidPage(
            column(6, sliderInput("r_mu22", "Мю22", 0, 4, 3, 0.1)),
            
            column(6, sliderInput("r_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
-           column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
+           column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.7, 0.1)), 
            column(6, sliderInput("r_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
-           column(6, sliderInput("r_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
+           column(6, sliderInput("r_sigma22", "Сигма22", 0.1, 1, 1, 0.1)),
            
            column(12, sliderInput("r_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
           )
@@ -60,7 +60,7 @@ calc_sigma <- function(xl, mu) {
   sum / (nrow(xl)-1)
 }
 
-plug_in <- function(xl, len1, len2, Py, mu, sigma) {
+LDF <- function(xl, len1, len2, Py, mu, sigma) {
   
   discriminant <- function(mu, sigma, Py) {
     sigma1 <- sigma[1:2,]
@@ -68,11 +68,6 @@ plug_in <- function(xl, len1, len2, Py, mu, sigma) {
     
     inverse_s1 <- solve(sigma1)
     inverse_s2 <- solve(sigma2)
-    
-    #xn = x^n
-    x2 <- inverse_s1[1,1] - inverse_s2[1,1]
-    y2 <- inverse_s1[2,2] - inverse_s2[2,2]
-    xy <- 2 * inverse_s1[1,2] - 2 * inverse_s2[1,2]
     
     x1 <- 2 * inverse_s2[1,2] * mu[2,2] - 2 * inverse_s1[1,2] * mu[1,2] - 2 * inverse_s1[1,1] * mu[1,1] + 2 * inverse_s2[1,1] * mu[2,1]
     y1 <- 2 * inverse_s2[1,2] * mu[2,1] + 2 * inverse_s2[2,2] * mu[2,2] - 2 * inverse_s1[1,2] * mu[1,1] - 2 * inverse_s1[2,2] * mu[1,2]
@@ -82,7 +77,7 @@ plug_in <- function(xl, len1, len2, Py, mu, sigma) {
       log(det(sigma1)) - log(det(sigma2)) - Py[1]/Py[2]
     
     func <- function(x, y) {
-      x^2*x2 + y^2*y2 + x*y*xy + x*x1 + y*y1 + c
+      x*x1 + y*y1 + c
     }
     
     return(func)
@@ -129,6 +124,7 @@ server <- function(input, output, session) {
       
       xl <- read.table(file = "example.txt", header = TRUE) 
       
+      test_sigma <- matrix(c(input$s_sigma11, input$s_sigma12, input$s_sigma21, input$s_sigma22), 2, 2)
     }
     else {
       len1 <- input$n 
@@ -162,15 +158,14 @@ server <- function(input, output, session) {
       
       colnames(xl) <- c("X", "Y", "Classes")
       
-      
+      test_sigma <- matrix(c(input$r_sigma11, input$r_sigma12, input$r_sigma21, input$r_sigma22), 2, 2)
     }
-    
     
     mu <- rbind(c(calc_mu(first_x), calc_mu(first_y)), c(calc_mu(second_x), calc_mu(second_y)))
     sigma <- rbind(calc_sigma(first, mu[1,]), calc_sigma(second, mu[2,]))
     
     
-    plug_in(xl, len1, len2, Py, mu, sigma)
+    LDF(xl, len1, len2, Py, mu, sigma)
   })
 }
 

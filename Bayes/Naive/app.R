@@ -9,40 +9,40 @@ ui <- fluidPage(
       fluidRow(
         tabsetPanel(id="tab",
           tabPanel(title = "Стандартная выборка", 
-            column(6, sliderInput("lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
-            column(6, sliderInput("lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("s_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("s_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
             
-            column(6, sliderInput("mu11", "Мю11", 0, 6, 2, 0.1)), 
-            column(6, sliderInput("mu12", "Мю12", 0, 6, 4, 0.1)), 
-            column(6, sliderInput("mu21", "Мю21", 0, 4, 1, 0.1)),
-            column(6, sliderInput("mu22", "Мю22", 0, 4, 3, 0.1)),
+            column(6, sliderInput("s_mu11", "Мю11", 0, 6, 2, 0.1)), 
+            column(6, sliderInput("s_mu12", "Мю12", 0, 6, 4, 0.1)), 
+            column(6, sliderInput("s_mu21", "Мю21", 0, 4, 1, 0.1)),
+            column(6, sliderInput("s_mu22", "Мю22", 0, 4, 3, 0.1)),
             
-            column(6, sliderInput("sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
-            column(6, sliderInput("sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
-            column(6, sliderInput("sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
-            column(6, sliderInput("sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
+            column(6, sliderInput("s_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
+            column(6, sliderInput("s_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
+            column(6, sliderInput("s_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
+            column(6, sliderInput("s_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
             
-            column(12, sliderInput("P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
+            column(12, sliderInput("s_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
           ),
           
           tabPanel(title = "Случайные выборки",
             column(6, sliderInput("n", "Количество элементов 1-го класса", 10, 100, 30, 1)),
             column(6, sliderInput("m", "Количество элементов 2-го класса", 10, 100, 40, 1)),
             
-            column(6, sliderInput("lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
-            column(6, sliderInput("lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("r_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("r_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
             
-            column(6, sliderInput("mu11", "Мю11", 0, 6, 2, 0.1)), 
-            column(6, sliderInput("mu12", "Мю12", 0, 6, 4, 0.1)), 
-            column(6, sliderInput("mu21", "Мю21", 0, 4, 1, 0.1)),
-            column(6, sliderInput("mu22", "Мю22", 0, 4, 3, 0.1)),
+            column(6, sliderInput("r_mu11", "Мю11", 0, 6, 2, 0.1)), 
+            column(6, sliderInput("r_mu12", "Мю12", 0, 6, 4, 0.1)), 
+            column(6, sliderInput("r_mu21", "Мю21", 0, 4, 1, 0.1)),
+            column(6, sliderInput("r_mu22", "Мю22", 0, 4, 3, 0.1)),
             
-            column(6, sliderInput("sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
-            column(6, sliderInput("sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
-            column(6, sliderInput("sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
-            column(6, sliderInput("sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
+            column(6, sliderInput("r_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
+            column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
+            column(6, sliderInput("r_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
+            column(6, sliderInput("r_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
             
-            column(12, sliderInput("P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
+            column(12, sliderInput("r_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
           )
         )
       )
@@ -114,10 +114,18 @@ server <- function(input, output) {
       len1 <- 20
       len2 <- 30
       
-      first_x <- rnorm(len1, input$mu11, input$sigma11)
-      first_y <- rnorm(len1, input$mu21, input$sigma21)
-      second_x <- rnorm(len2, input$mu12, input$sigma12)
-      second_y <- rnorm(len2, input$mu22, input$sigma22)
+      first_x <- rnorm(len1, input$s_mu11, input$s_sigma11)
+      first_y <- rnorm(len1, input$s_mu21, input$s_sigma21)
+      second_x <- rnorm(len2, input$s_mu12, input$s_sigma12)
+      second_y <- rnorm(len2, input$s_mu22, input$s_sigma22)
+      
+      l1 <- input$s_lmbd1
+      l2 <- input$s_lmbd2
+      lyambda <- c(l1, l2)
+      
+      P1 <- input$s_P
+      P2 <- 1 - P1
+      Py <- c(P1, P2)
       
       xl <- read.table(file = "example.txt", header = TRUE) 
     }
@@ -127,10 +135,18 @@ server <- function(input, output) {
       
       len <- len1+len2
       
-      first_x <- rnorm(len1, input$mu11, input$sigma11)
-      first_y <- rnorm(len1, input$mu21, input$sigma21)
-      second_x <- rnorm(len2, input$mu12, input$sigma12)
-      second_y <- rnorm(len2, input$mu22, input$sigma22)
+      first_x <- rnorm(len1, input$r_mu11, input$r_sigma11)
+      first_y <- rnorm(len1, input$r_mu21, input$r_sigma21)
+      second_x <- rnorm(len2, input$r_mu12, input$r_sigma12)
+      second_y <- rnorm(len2, input$r_mu22, input$r_sigma22)
+      
+      l1 <- input$r_lmbd1
+      l2 <- input$r_lmbd2
+      lyambda <- c(l1, l2)
+      
+      P1 <- input$r_P
+      P2 <- 1 - P1
+      Py <- c(P1, P2)
       
       first <- cbind(first_x, first_y)
       second <- cbind(second_x, second_y)
@@ -148,19 +164,13 @@ server <- function(input, output) {
       xl <- cbind(xl, classes)
       
       colnames(xl) <- c("X", "Y", "Classes")
+      
     }
     
     mu <- rbind(c(calc_mu(first_x), calc_mu(first_y)), c(calc_mu(second_x), calc_mu(second_y)))
     sigma <- rbind(c(calc_sigma(first_x, mu[1,1]), calc_sigma(first_y, mu[1,2])), 
                    c(calc_sigma(second_x, mu[2,1]), calc_sigma(second_y, mu[2,2])))
     
-    P1 <- input$P
-    P2 <- 1 - P1
-    Py <- c(P1, P2)
-    
-    l1 <- input$lmbd1
-    l2 <- input$lmbd2
-    lyambda <- c(l1, l2)
     
     naive_bayes(xl, len1, len2, Py, lyambda, mu, sigma)
   })
