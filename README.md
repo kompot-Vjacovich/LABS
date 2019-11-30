@@ -16,6 +16,8 @@
     <ul>
       <li><a href="#levels">Линии уровня нормального распределения</a></li>
       <li><a href="#naive">Наивный байесовский классификатор</a></li>
+      <li><a href="#plug-in">Plug-in</a></li>
+      <li><a href="#LDF">Линейный дискриминант фишера</a></li>
     </ul>
   </li>
 </ol>
@@ -317,5 +319,103 @@ naive_bayes <- function(xl, len1, len2, P, lyambda, mu, sigma) {
 Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/naive/">shiny</a>
 
 ![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/Naive/Classification_Naive.png)
+
+<a href="#content">Вернуться к содержанию</a>
+
+### <a name="naive"></a>Plug-in
+
+В качестве модели восстанавливаемой плотности в <b>Подстановочном алгоритме(Plug-in)</b> рассматривается многомерная нормальная плотность: 
+
+![](https://camo.githubusercontent.com/8e7cf0a285068cff21acc2a6d67cfaa81d85d184/68747470733a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f4e253238782532432532302535436d752532432532302535435369676d612532392532302533442532302535436672616325374231253744253742253543737172742537422532383225354370692532392535456e2537432535435369676d61253743253744253744657870253238253543667261632537422d3125374425374232253744253238782532302d2532302535436d75253239253545542532302535435369676d612535452537422d31253744253238782532302d2532302535436d7525323925323925324325323078253230253543657073696c6f6e2532302535436d6174686262253742522537442535452537426e253744)
+
+где ![](https://latex.codecogs.com/gif.latex?%5Cmu%20%5Cepsilon%20%5Cmathbb%7BR%7D%5E%7Bn%7D) -- математическое ожидание (центр), а ![](https://latex.codecogs.com/gif.latex?%5CSigma%20%5Cepsilon%20%5Cmathbb%7BR%7D%5E%7Bn%5Ctimes%20n%7D) - ковариационная матрица 
+
+Алгоритм заключается в восстановлении параметров нормального распределения ![](https://latex.codecogs.com/gif.latex?%5Cmu_y), ![](https://latex.codecogs.com/gif.latex?%5CSigma_y) для каждого класса ![](https://latex.codecogs.com/gif.latex?y%20%5Cepsilon%20Y) и подстановке их в формулу оптимального байесовского классификатора. Предполагается, что ковариационные матрицы классов не равны.
+
+Оценка параметров нормального распределения производится на основе *принципа максимума правдоподобия*:
+
+![](https://latex.codecogs.com/gif.latex?%5Cmu_y%20%3D%20%5Cfrac%7B1%7D%7Bl_y%7D%5Csum_%7Bx_i%3Ay_i%20%3D%20y%7D%20x_i) ,
+
+![](https://latex.codecogs.com/gif.latex?%5CSigma_y%20%3D%20%5Cfrac%7B1%7D%7Bl_y%20-%201%7D%5Csum_%7Bx_i%3Ay_i%20%3D%20y%7D%28x_i%20-%20%5Cmu_y%29%28x_i%20-%20%5Cmu_y%29%5ET).
+
+Разделяющая поверхность между двумя классами *s* и *t* задаётся следующим образом:
+
+![](https://latex.codecogs.com/gif.latex?%5Clambda_sP_s%5Crho_s%28x%29%20%3D%20%5Clambda_tP_t%5Crho_t%28x%29)
+
+Логарифмируя плотности каждого класса и подставив в выражение с разностью логарифмов, можем получть коэффициенты разделяющей кривой
+
+Реализация на R
+```R
+calc_mu <- function(xl) sum(xl) / length(xl)
+
+calc_sigma <- function(xl, mu) {
+  sum <- 0
+  for (i in 1:nrow(xl)) {
+    xi <- matrix(c(xl[i,1], xl[i,2]), 1, 2)
+    sum <- sum + t(xi - mu) %*% (xi - mu)
+  }
+  sum / (nrow(xl)-1)
+}
+
+plug_in <- function(xl, len1, len2, Py, mu, sigma, l1, l2) {
+  
+  discriminant <- function(mu, sigma, Py) {
+    sigma1 <- sigma[1:2,]
+    sigma2 <- sigma[3:4,]
+    
+    inverse_s1 <- solve(sigma1)
+    inverse_s2 <- solve(sigma2)
+    
+    #xn = x^n
+    x2 <- inverse_s1[1,1] - inverse_s2[1,1]
+    y2 <- inverse_s1[2,2] - inverse_s2[2,2]
+    xy <- 2 * inverse_s1[1,2] - 2 * inverse_s2[1,2]
+    
+    x1 <- 2 * inverse_s2[1,2] * mu[2,2] - 2 * inverse_s1[1,2] * mu[1,2] - 2 * inverse_s1[1,1] * mu[1,1] + 2 * inverse_s2[1,1] * mu[2,1]
+    y1 <- 2 * inverse_s2[1,2] * mu[2,1] + 2 * inverse_s2[2,2] * mu[2,2] - 2 * inverse_s1[1,2] * mu[1,1] - 2 * inverse_s1[2,2] * mu[1,2]
+    
+    c <- -inverse_s2[1,1] * mu[2,1]^2 - 2 * inverse_s2[1,2] * mu[2,1] * mu[2,2] - inverse_s2[2,2] * mu[2,2]^2 + 
+      inverse_s1[1,1] * mu[1,1]^2 + 2 * inverse_s1[1,2] * mu[1,1] * mu[1,2] + inverse_s1[2,2] * mu[1,2]^2 + 
+      log(det(sigma1)) - log(det(sigma2)) - Py[1]/Py[2]
+    
+    func <- function(x, y) {
+      x^2*x2 + y^2*y2 + x*y*xy + x*x1 + y*y1 + c
+    }
+    
+    return(func)
+  }
+  
+  getLyambda <- function(l1, l2, P1, P2) {
+    log((l1*P1)/(l2*P2))
+  }
+  
+  draw_plot <- function(xl, mu, sigma, Py, l1, l2) {
+    x <- seq(min(mu[,1]) - 5, max(mu[,1]) + 5, length.out = 100)
+    y <- seq(min(mu[, 2]) - 5, max(mu[, 2]) + 5, length.out = 100)
+    
+    func <- discriminant(mu, sigma, Py)
+    z <- outer(x, y, func)
+    
+    lyambda <- getLyambda(l1, l2, Py[1], Py[2])
+    
+    n <- ncol(xl)
+    colors <- c("first"="red", "second"="green3")
+    plot(xl[, 1:(n-1)], pch = 21, bg = colors[xl[,n]], col = colors[xl[,n]], 
+         main = "Карта классификации нормального распределения", asp = 1)
+    contour(x, y, z, lwd = 3, levels = lyambda, col = "black", drawlabels = F, add = T)
+  }
+  
+  len <- len1 + len2
+  
+  classes <- unique(xl[,ncol(xl)])
+  
+  draw_plot(xl, mu, sigma, Py, l1, l2)
+}
+
+```
+
+Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/Plug-in/">shiny</a>
+
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/Plug-in/Classification_Plug-in.png)
 
 <a href="#content">Вернуться к содержанию</a>
