@@ -9,43 +9,43 @@ ui <- fluidPage(
     sidebarPanel(
       fluidRow(
         tabsetPanel(id="tab",
-                    tabPanel(title = "Стандартная выборка", 
-                             
-                             column(6, sliderInput("s_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
-                             column(6, sliderInput("s_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
-                             
-                             column(6, sliderInput("s_mu11", "Мю11", 0, 6, 2, 0.1)), 
-                             column(6, sliderInput("s_mu12", "Мю12", 0, 6, 4, 0.1)), 
-                             column(6, sliderInput("s_mu21", "Мю21", 0, 4, 1, 0.1)),
-                             column(6, sliderInput("s_mu22", "Мю22", 0, 4, 3, 0.1)),
-                             
-                             column(6, sliderInput("s_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
-                             column(6, sliderInput("s_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
-                             column(6, sliderInput("s_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
-                             column(6, sliderInput("s_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
-                             
-                             column(12, sliderInput("s_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
-                    ),
-                    
-                    tabPanel(title = "Случайные выборки",
-                             column(6, sliderInput("n", "Количество элементов 1-го класса", 10, 100, 30, 1)),
-                             column(6, sliderInput("m", "Количество элементов 2-го класса", 10, 100, 40, 1)),
-                             
-                             column(6, sliderInput("r_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
-                             column(6, sliderInput("r_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
-                             
-                             column(6, sliderInput("r_mu11", "Мю11", 0, 6, 2, 0.1)), 
-                             column(6, sliderInput("r_mu12", "Мю12", 0, 6, 4, 0.1)), 
-                             column(6, sliderInput("r_mu21", "Мю21", 0, 4, 1, 0.1)),
-                             column(6, sliderInput("r_mu22", "Мю22", 0, 4, 3, 0.1)),
-                             
-                             column(6, sliderInput("r_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
-                             column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
-                             column(6, sliderInput("r_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
-                             column(6, sliderInput("r_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
-                             
-                             column(12, sliderInput("r_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
-                    )
+          tabPanel(title = "Стандартная выборка", 
+            
+            column(6, sliderInput("s_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("s_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
+            
+            column(6, sliderInput("s_mu11", "Мю11", 0, 6, 2, 0.1)), 
+            column(6, sliderInput("s_mu12", "Мю12", 0, 6, 4, 0.1)), 
+            column(6, sliderInput("s_mu21", "Мю21", 0, 4, 1, 0.1)),
+            column(6, sliderInput("s_mu22", "Мю22", 0, 4, 3, 0.1)),
+            
+            column(6, sliderInput("s_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
+            column(6, sliderInput("s_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
+            column(6, sliderInput("s_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
+            column(6, sliderInput("s_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
+            
+            column(12, sliderInput("s_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
+          ),
+          
+          tabPanel(title = "Случайные выборки",
+            column(6, sliderInput("n", "Количество элементов 1-го класса", 10, 100, 30, 1)),
+            column(6, sliderInput("m", "Количество элементов 2-го класса", 10, 100, 40, 1)),
+            
+            column(6, sliderInput("r_lmbd1", "Лямбда 1", 0.5, 2, 1, 0.01)),
+            column(6, sliderInput("r_lmbd2", "Лямбда 2", 0.5, 2, 1, 0.01)),
+            
+            column(6, sliderInput("r_mu11", "Мю11", 0, 6, 2, 0.1)), 
+            column(6, sliderInput("r_mu12", "Мю12", 0, 6, 4, 0.1)), 
+            column(6, sliderInput("r_mu21", "Мю21", 0, 4, 1, 0.1)),
+            column(6, sliderInput("r_mu22", "Мю22", 0, 4, 3, 0.1)),
+            
+            column(6, sliderInput("r_sigma11", "Сигма11", 0.1, 1, 0.7, 0.1)), 
+            column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)), 
+            column(6, sliderInput("r_sigma21", "Сигма21", 0.1, 1, 1, 0.1)),
+            column(6, sliderInput("r_sigma22", "Сигма22", 0.1, 1, 0.7, 0.1)),
+            
+            column(12, sliderInput("r_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01))
+          )
         )
       )
     ),
@@ -72,10 +72,6 @@ calc_sigma <- function(xl, mu) {
     sum <- sum + t(xi - mu) %*% (xi - mu)
   }
   sum / (nrow(xl)-1)
-}
-
-Pyj <- function(x, mu, sigma) {
-  return((1/(sigma*sqrt(2*pi))) * exp(-1 * ((x - mu)^2)/(2*sigma^2)))
 }
 
 plug_in <- function(xl, len1, len2, Py, mu, sigma, l1, l2) {
@@ -136,12 +132,17 @@ server <- function(input, output, session) {
     if(input$tab == "Стандартная выборка") {
       len1 <- 20
       len2 <- 30
+      len <- len1+len2
       
-      s1 <- matrix(c(input$s_sigma11, 0, 0, input$s_sigma12), 2, 2)
-      s2 <- matrix(c(input$s_sigma21, 0, 0, input$s_sigma22), 2, 2)
+      xl <- read.table(file = "example.txt", header = TRUE)
+      first <- xl[1:len1,]
+      second <- xl[(len1+1):len,]
       
-      m1 <- c(input$s_mu11, input$s_mu12)
-      m2 <- c(input$s_mu21, input$s_mu22)
+      
+      mu <- rbind(c(input$s_mu11, input$s_mu12),c(input$s_mu21, input$s_mu22))
+      sigma1 <- matrix(c(input$s_sigma11, 0, 0, input$s_sigma12), 2, 2)
+      sigma2 <- matrix(c(input$s_sigma21, 0, 0, input$s_sigma22), 2, 2)
+      sigma <- rbind(sigma1, sigma2)
       
       P1 <- input$s_P
       P2 <- 1 - P1
@@ -149,8 +150,6 @@ server <- function(input, output, session) {
       
       l1 <- input$s_lmbd1
       l2 <- input$s_lmbd2
-      
-      xl <- read.table(file = "example.txt", header = TRUE) 
     }
     else {
       len1 <- input$n 
@@ -170,8 +169,8 @@ server <- function(input, output, session) {
       m1 <- calc_mu(first)
       m2 <- calc_mu(second)
       
-      s1 <- calc_sigma(first, mu1)
-      s2 <- calc_sigma(second, mu2)
+      mu <- rbind(calc_mu(first), calc_mu(second))
+      sigma <- rbind(calc_sigma(first, mu1), calc_sigma(second, mu2))
       
       P1 <- input$r_P
       P2 <- 1 - P1
@@ -194,9 +193,6 @@ server <- function(input, output, session) {
       
       colnames(xl) <- c("X", "Y", "Classes")
     }
-    
-    mu <- rbind(m1, m2)
-    sigma <- rbind(s1, s2)
     
     plug_in(xl, len1, len2, Py, mu, sigma, l1, l2)
   })
