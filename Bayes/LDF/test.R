@@ -1,35 +1,8 @@
-library(shiny)
+
+
 library(MASS)
 
-ui <- fluidPage(
-  
-  titlePanel("Линейный дискриминант Фишера"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      fluidRow(
-        column(6, sliderInput("r_lmbd1", "Лямбда 1", 1, 5, 1, 0.1)),
-        column(6, sliderInput("r_lmbd2", "Лямбда 2", 1, 5, 1, 0.1)),
-        
-        column(6, sliderInput("r_mu11", "Мю11", 0, 6, 0, 0.1)), 
-        column(6, sliderInput("r_mu12", "Мю12", 0, 6, 3, 0.1)), 
-        column(6, sliderInput("r_mu21", "Мю21", 0, 4, 4, 0.1)),
-        column(6, sliderInput("r_mu22", "Мю22", 0, 4, 3, 0.1)),
-        
-        column(6, sliderInput("r_sigma11", "Сигма11", 0.1, 1, 0.5, 0.1)), 
-        column(6, sliderInput("r_sigma12", "Сигма12", 0.1, 1, 0.6, 0.1)),
-        
-        column(12, sliderInput("r_P", "Вероятность(априорная) появления Класса1|Класса2", 0.01, 0.99, 0.5, 0.01)),
-        checkboxInput("map", "Построить карту классификации", FALSE)
-        
-      )
-    ),
-    
-    mainPanel(
-      plotOutput("plot", width = "800px", height = "600px")
-    )
-  )
-)
+
 
 calc_mu <- function(xl) {
   l <- dim(xl)[2]
@@ -70,7 +43,6 @@ LDF <- function(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map) {
       
       for (j in 1:length(x)) {
         tmP <- Nu(x[j], mu[i,j], newSigma[i,j])
-        
         tmpSum <- tmpSum + log(tmP)
       }
       classSum[i] <- tmpSum + log(lyambda[i]*Py[i])
@@ -91,8 +63,8 @@ LDF <- function(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map) {
   }
   
   discriminant <- function(mu1, mu2, sigma, Py) {
-    inverse <- solve(sigma)
     
+    inverse <- solve(sigma)
     b <- inverse %*% t(mu1 - mu2)
     
     x1 <- b[1, 1]
@@ -151,36 +123,30 @@ LDF <- function(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map) {
   
 }
 
-server <- function(input, output, session) {
-  output$plot <- renderPlot({
-    len1 <- 30
-    len2 <- 40
-    len <- len1+len2
-    
-    xl <- read.table(file = "example.txt", header = TRUE)
-    
-    first <- xl[1:len1,]
-    second <- xl[(len1+1):len,]
-    
-    
-    mu1 <- matrix(c(input$r_mu11, input$r_mu12), 1, 2)
-    mu2 <- matrix(c(input$r_mu21, input$r_mu22), 1, 2)
-    
-    sigma <- matrix(c(input$r_sigma11, 0, 0, input$r_sigma12), 2, 2)
-    print(sigma)
-    P1 <- input$r_P
-    P2 <- 1 - P1
-    Py <- c(P1, P2)
-    
-    l1 <- input$r_lmbd1
-    l2 <- input$r_lmbd2
-    
-    map <- input$map
+len1 <- 30
+len2 <- 40
+len <- len1+len2
 
-    
-    LDF(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map)
-    if(!map) lines(c(mu1[1], mu2[1]), c(mu1[2], mu2[2]), col = 'magenta', lwd = 2)
-  })
-}
+xl <- read.table(file = "example.txt", header = TRUE)
 
-shinyApp(ui, server)
+first <- xl[1:len1,]
+second <- xl[(len1+1):len,]
+
+
+mu1 <- matrix(c(0, 3), 1, 2)
+mu2 <- matrix(c(4, 3), 1, 2)
+
+sigma <- matrix(c(0.5, 0, 0, 0.6), 2, 2)
+print(sigma)
+P1 <- 0.5
+P2 <- 1 - P1
+Py <- c(P1, P2)
+
+l1 <- 1
+l2 <- 1
+
+map <- TRUE
+
+
+LDF(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map)
+if(!map) lines(c(mu1[1], mu2[1]), c(mu1[2], mu2[2]), col = 'magenta', lwd = 2)
