@@ -1,4 +1,5 @@
 library(shiny)
+require("plotrix")
 
 ui <- fluidPage(
   
@@ -14,7 +15,7 @@ ui <- fluidPage(
                                 selected = 0, inline = T), style = "text-align: center"),
         column(12, checkboxInput("drow_iter", "Отображать итерации", F)),
         column(6, selectInput("eps_q", "Погрешность Q", c(0.00001, 0.0001, 0.001, 0.01, 0.1), 0.001)),
-        column(6, sliderInput("max_cnt", "MAX количество итераций", 1000, 10000, 5000, 1000))
+        column(6, sliderInput("max_cnt", "MAX количество итераций", 1000, 5000, 2000, 1000))
         
       )
     ),
@@ -43,43 +44,63 @@ logW <- function(w, object, class, eta) w + c(eta) * object * class * sigmaZ(c(w
 
 sigmaZ <- function(z) 1 / (1 + exp(-z))
 
+logMap <- function(w) {
+  p <- function(x,y,w) sigmaZ(x*w[1]+y*w[2]-w[3])-sigmaZ(-x*w[1]-y*w[2]+w[3])
+  
+  P = matrix(0, 100, 100)
+  
+  for(i in seq(from=0, to=1, by=0.1)){
+    for(j in seq(from=0, to=1, by=0.1)){
+      P[i*10+1,j*10+1] = p(i,j,w)
+    }
+  }
+  k = 1/max(max(P), -min(P))
+  for(i in seq(from=-2.5, to=3, by=0.05)){
+    for(j in seq(from=-2, to=3, by=0.05)){
+      pp = p(i,j,w)
+      #if(abs(pp) != 1) print(pp)
+      if(pp>0){
+        color = adjustcolor("red",pp*k)
+        draw.circle(i, j, 0.025, 5, border = color, col = color)
+      }
+      if(pp<0){
+        color = adjustcolor("blue",-pp*k)
+        draw.circle(i, j, 0.025, 5, border = color, col = color)
+      } 
+    }
+  }
+}
+
 gradient <- function(xl, eta, lambda, rule, loss_function, max_cnt, eps_q) {
   l <- nrow(xl)
   n <- ncol(xl)
-  w <- matrix(c(runif(n-1, -1/(2*(n-1)), 1/(2*(n-1)))), 1, 3) # генерация w случайными весами
+  w <- matrix(c(runif(n-1, -1/(2*(n-1)), 1/(2*(n-1)))), 1, 3)
   objects <- xl[,-n]
   classes <- xl[, n]
-  q <- sum(sapply(1:l, function(i) loss_function(margin(w, objects[i,], classes[i])))) # инициализация q
+  q <- sum(sapply(1:l, function(i) loss_function(margin(w, objects[i,], classes[i])))) 
   q_full <- matrix(q, 1, 1)
   
   cnt <- 0
   while (T) {
-    cnt <- cnt + 1 # Счётчик итераций
+    cnt <- cnt + 1
     margins <- sapply(1:l, function(i) margin(w[cnt,], objects[i,], classes[i]))
     errors <- which(margins < 0)
-    
-    if (length(errors) == 0) break;
     
     if (length(errors) > 0) rand <- sample(errors, 1)
     else rand <- sample(1:l, 1)
     
-    eps <- loss_function(margin(w[cnt,], objects[rand,], classes[rand])) # Ошибка алгоритма на объекте
+    eps <- loss_function(margin(w[cnt,], objects[rand,], classes[rand]))
     
-    eta <- 1 / (objects[rand,] %*% objects[rand,])^2 # изменение темпа обучения
-    
-    # Обновление весов
+    eta <- 1 / (objects[rand,] %*% objects[rand,])^2
+
     w <- rbind(w, rule(w[cnt,], objects[rand,], classes[rand], eta))
     
-    # Перерасчёт q
     q_prev <- q
     q <- (1 - lambda) * q + lambda * eps
     q_full <- rbind(q_full, q)
     
-    if (abs(q_prev - q) / max(q_prev, q) <= eps_q) # выход из цикла
-    { break; }
-    else if (cnt == max_cnt) 
-    { break; }
-    
+    if (abs(q_prev - q) / max(q_prev, q) <= eps_q) break
+    else if (cnt == max_cnt) break
   }
   w <- cbind(w, q_full)
   return (w)
@@ -101,12 +122,15 @@ perceptron <- function(xl, drow_iter, max_cnt, eps_q) {
   draw_lines(xl, w, drow_iter, label="Классификатор: Персептрон Розенблатта")
 }
 
-logistic <- function(xl, drow_iter, drow_q, max_cnt, eps_q=0.001) {
+logistic <- function(xl, drow_iter, max_cnt, eps_q) {
   w <- gradient(xl, 1, 1/6, logW, logLoss, max_cnt, eps_q)
   q <- w[,ncol(w)]
   
   draw_change(q)
   draw_lines(xl, w, drow_iter, label="Классификатор: Логистическая регрессия")
+  n <- nrow(w)
+  w_final <- c(w[n,1], w[n,2], w[n,3])
+  logMap(w_final)
 }
 
 compare <- function(xl, drow_iter, max_cnt, eps_q) {

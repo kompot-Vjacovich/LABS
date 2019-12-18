@@ -26,7 +26,11 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      plotOutput("plot", width = "800px", height = "600px")
+      plotOutput("plot", width = "800px", height = "600px"),
+      fluidRow(
+        column(2, h4("Риск:")),
+        column(2, h4(textOutput("risk")))
+      )
     )
   )
 )
@@ -151,6 +155,17 @@ LDF <- function(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map) {
   
 }
 
+getRisk <- function(mu1, mu2, sigma) {
+  mah <- (mu1 - mu2) %*% solve(sigma) %*% t(mu1 - mu2)
+  
+  mah <- mah * -0.5
+  res <- gausian(mah, 0, 1)
+}
+
+gausian <- function(x, M, D){
+  return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
+}
+
 server <- function(input, output, session) {
   output$plot <- renderPlot({
     len1 <- 30
@@ -180,6 +195,7 @@ server <- function(input, output, session) {
     
     LDF(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map)
     if(!map) lines(c(mu1[1], mu2[1]), c(mu1[2], mu2[2]), col = 'magenta', lwd = 2)
+    output$risk = renderText(getRisk(mu1, mu2, sigma))
   })
 }
 
