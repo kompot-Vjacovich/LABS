@@ -20,6 +20,9 @@
       <li><a href="#LDF">Линейный дискриминант фишера</a></li>
     </ul>
   </li>
+  <li>
+    <a href="#Linear">Линейные алгоритмы классификации</a>
+  </li>
 </ol>
 
 ## Метрические алгоритмы
@@ -417,5 +420,281 @@ plug_in <- function(xl, len1, len2, Py, mu, sigma, l1, l2) {
 Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/Plug-in/">shiny</a>
 
 ![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/Plug-in/Classification_Plug-in.png)
+
+<a href="#content">Вернуться к содержанию</a>
+
+### <a name="LDF"></a>Линейный дискриминант Фишера
+<b>ЛДФ</b> основан на <b>подстановочном</b> алгоритме с предположением, что ковариационные матрицы классов равны. Отсюда следует, что разделяющая поверхность вырождается в <b>прямую</b>. Это условие в plug-in не выполнялось, так как разделяющая поверхность все равно была квадратичной (хоть и приближенной к прямой). 
+
+Так как матрицы равны, можем оценить их все вместе:
+
+![](https://camo.githubusercontent.com/4a72020f09915379b2f8f30765a758252ba3af76/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535436861742537422535435369676d6125374425323025334425323025354366726163253742312537442537426c2532302d2532302537435925374325374425323025354363646f7425323025354373756d5f25374269253344312537442535452537426c253744253238785f692532302d2532302535436861742537422535436d752537445f795f69253239253238785f692532302d2532302535436861742537422535436d752537445f795f6925323925354554)
+
+Разделяющая поверхность между двумя классами *s* и *t* задаётся следующим образом:
+
+Реализация на R
+```LDF <- function(xl, len1, len2, Py, mu1, mu2, sigma, l1, l2, map) {
+  Nu <- function(ksi, mu, sigma) (1/(sigma*sqrt(2*pi)))*exp(-(ksi-mu)^2 / (2*sigma^2))
+  
+  classification <- function(x, classes, mu, sigma, Py, lyambda) {
+    classSum <- rep(0, length(classes))
+    names(classSum) <- classes
+    sigma[1,2] <- sigma[2,1] <- 1
+    newSigma <- rbind(c(sigma[1,1], sigma[1,2]), c(sigma[1,1], sigma[1,2]))
+    
+    for (i in 1:length(classes)) {
+      tmpSum <- 0
+      
+      for (j in 1:length(x)) {
+        tmP <- Nu(x[j], mu[i,j], newSigma[i,j])
+        
+        tmpSum <- tmpSum + log(tmP)
+      }
+      classSum[i] <- tmpSum + log(lyambda[i]*Py[i])
+    }
+    
+    return(names(which.max(classSum)))
+  }
+  
+  classify_all <- function(classes, mu, sigma, Py, lyambda) {
+    classifiedObj <- c()
+    
+    for(i in seq(min(mu[,1]) - 5, max(mu[,1] + 5), 0.1)) {
+      for(j in seq(min(mu[,2]) - 5, max(mu[,2] + 5), 0.1)) {
+        classifiedObj <- rbind(classifiedObj, c(i, j, classification(c(i, j), classes, mu, sigma, Py, lyambda)))
+      }
+    }
+    return(classifiedObj)
+  }
+  
+  discriminant <- function(mu1, mu2, sigma, Py) {
+    inverse <- solve(sigma)
+    
+    b <- inverse %*% t(mu1 - mu2)
+    
+    x1 <- b[1, 1]
+    y1 <- b[2, 1] 
+    m <- (mu1 + mu2)
+    const <- c(m %*% b) / 2
+    
+    func <- function(x, y) {
+      x*x1 + y*y1 - const
+    }
+    
+    return(func)
+  }
+  
+  getLyambda <- function(l1, l2, P1, P2) {
+    log((l1*P1)/(l2*P2))
+  }
+  
+  draw_plot <- function(xl, mu1, mu2, sigma, Py, l1, l2) {
+    mu <- rbind(mu1, mu2)
+    x <- seq(min(mu[, 2]) - 5, max(mu[, 2]) + 5, length.out = 100)
+    y <- seq(min(mu[, 2]) - 5, max(mu[, 2]) + 5, length.out = 100)
+    
+    func <- discriminant(mu1, mu2, sigma, Py)
+    z <- outer(x, y, func)
+    
+    lyambda <- getLyambda(l1, l2, Py[1], Py[2])
+    
+    n <- ncol(xl)
+    colors <- c("first"="red", "second"="green3")
+    plot(xl[, 1:(n-1)], pch = 21, bg = colors[xl[,n]], col = colors[xl[,n]], 
+         main = "Карта классификации нормального распределения", asp = 1)
+    contour(x, y, z, lwd = 2.5, type="l", levels = lyambda, col = "black", drawlabels = F, add = T)
+  }
+  
+  draw_map <- function(xl, classifiedObj) {
+    n <- ncol(xl)
+    colors <- c("first"="red", "second"="green3")
+    plot(xl[, 1:(n-1)], pch = 21, bg = colors[xl[,n]], col = colors[xl[,n]], 
+         main = "Карта классификации нормального распределения", asp = 1)
+    points(classifiedObj[, 1:(n-1)], pch = 21, col = colors[classifiedObj[, n]])
+  }
+  
+  len <- len1 + len2
+  
+  if(!map) {
+    draw_plot(xl, mu1, mu2, sigma, Py, l1, l2)
+  }
+  else {
+    classes <- unique(xl[,ncol(xl)])
+    lyambda <- c(l1, l2)
+    mu <- rbind(mu1, mu2)
+    classified <- classify_all(classes, mu, sigma, Py, lyambda)
+    draw_map(xl, classified)
+  }
+  
+}
+```
+Вероятность ошибки <b>Линейного дискриминанта Фишера</b> выражается через расстояние Махаланобиса между классами, в случае, когда классов два:
+
+![](https://latex.codecogs.com/gif.latex?R%28a%29%20%3D%20%5CPhi%28-%5Cfrac%7B1%7D%7B2%7D%7C%7C%5Cmu_1%20-%20%5Cmu_2%7C%7C_%7B%5CSigma_1%7D%29)
+
+где ![](https://latex.codecogs.com/gif.latex?%5CPhi%28x%29%20%3D%20%5Cnu%28x%3B0%2C1%29) - нормальное гауссовское распределение.
+
+```R
+getRisk <- function(mu1, mu2, sigma) {
+  mah <- (mu1 - mu2) %*% solve(sigma) %*% t(mu1 - mu2)
+  
+  mah <- mah * -0.5
+  res <- gausian(mah, 0, 1)
+}
+
+gausian <- function(x, M, D){
+  return( (1/(D*sqrt(2*pi))) * exp(-1 * ((x - M)^2)/(2*D^2)) )
+}
+```
+
+Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/LDFisher/">shiny</a>
+
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/Plug-in/Classification_LDF.png)
+
+<a href="#content">Вернуться к содержанию</a>
+
+## <a name="Linear"></a>Линейные алгоритмы классификации
+Пусть ![](https://latex.codecogs.com/gif.latex?X%20%3D%20%5Cmathbb%7BR%7D%5E%7Bn%7D%2C%20Y%20%3D%20%5Cleft%20%5C%7B%20-1%3B%20&plus;1%20%5Cright%20%5C%7D). **Линейным** называется следующий алгоритм классификации:
+
+![](https://latex.codecogs.com/gif.latex?a%28x%2C%20w%29%20%3D%20sign%20%3Cw%2C%20x%3E) ,
+где ![](https://latex.codecogs.com/gif.latex?w%20%5Cepsilon%20%5Cmathbb%7BR%7D%5En) -- вектор параметров.
+
+Гиперплоскость, разделяющая классы в пространстве ![](https://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D%5En), задаётся уравнением **<w, x> = 0**. Если вектор *x* находится по одну сторону гиперплоскости с её направляющим вектором *w*, то объект *x* относится к классу +1, иначе -- к классу -1.
+
+Для того, чтобы подобрать оптимальный вектор параметров *w*, минимизирующий эмпирический риск ![](https://latex.codecogs.com/gif.latex?Q%28w%2C%20X%5El%29%20%3D%20%5Csum_%7Bi%20%3D%201%7D%5E%7Bl%7DL%28%3Cw%2C%20x_i%3Ey_i%29) ,
+
+применяется **метод стохастического градиента**. В этом методе сначала выбирается начальное приближение для *w* (инициализируется небольшими случайными значениями *w = (-1/2n, 1/2n)*, где *n* -- число признаков *x*), затем запускается итерационный процесс, на каждом шаге которого вектор *w* сдвигается в направлении, противоположном направлению вектора градиента ![](https://latex.codecogs.com/gif.latex?Q%27%28w%2C%20X%5El%29).
+
+Веса *w* изменяются следующим образом:
+
+![](https://latex.codecogs.com/gif.latex?w%20%3D%20w%20-%20%5Ceta%20Q%27%28w%29), где ![](https://latex.codecogs.com/gif.latex?%5Ceta%20>%200) -- *темп обучения*.
+
+Функционал аппроксимированного эмпирического риска *Q* оценивается следующим образом:
+
+![](https://latex.codecogs.com/gif.latex?Q%20%3D%20%281%20-%20%5Clambda%29Q%20&plus;%20%5Clambda*%5Cvarepsilon_i), где ![](https://latex.codecogs.com/gif.latex?%5Cvarepsilon_i%20%3D%20L%28<w%2C%20x_i>y_i%29) -- ошибка алгоритма на случайном объекте ![](https://latex.codecogs.com/gif.latex?x_l) из *Xl*, ![](https://latex.codecogs.com/gif.latex?%5Clambda) -- параметр сглаживания (обычно полагается *1/l*)
+
+Сдвигаемся до тех пор, пока вектор *w* не перестанет изменяться и/или функционал *Q* не стабилизируется. Важно заметить, что градиент вычисляется не на всех объектах обучающей выборки, а на случайном объекте (поэтому *"стохастический"*). При использовании метода стохастического градиента нужно нормализовать данные:
+
+![](https://latex.codecogs.com/gif.latex?x%5Ej%20%3D%20%5Cfrac%7Bx%5Ej%20-%20x_%7Bmean%7D%5Ej%7D%7Bx%5Ej_%7Bsd%7D%7D)
+
+В зависимости от функции потерь *L* в функционале эмпирического риска *Q* существуют разнообразные **линейные алгоритмы классификации**.
+
+Для минимизации
+![](http://latex.codecogs.com/svg.latex?Q%28w%29)
+применяется __метод градиентного спуска__.
+
+В начале выбирается некоторое _начальное приближение вектора весов_ _w_.
+Не существует единого способа инициализации весов. Хорошей практикой считается
+инициализировать веса случайными малыми значениями:
+![](http://latex.codecogs.com/svg.latex?w_j%3A%3D%5Ctext%7Brandom%7D%28-%5Cfrac%7B1%7D%7B2n%7D%2C&plus;%5Cfrac%7B1%7D%7B2n%7D%29)
+, где _n_ – количество признаков _x_.
+
+Далее высчитывается _текущая оценка функционала_
+![](http://latex.codecogs.com/svg.latex?Q%3A%3D%5Csum_%7Bi%3D1%7D%5E%7B%5Cell%7D%5Cmathcal%7BL%7D%28%5Clangle%20w%2Cx_i%20%5Crangle%20y_i%29)
+
+Затем запускается итерационный процесс, на каждом шаге которого вектор _w_
+изменяется в сторону наиболее быстрого убывания _Q_. Это направление противоположно
+вектору градиента
+![](http://latex.codecogs.com/svg.latex?Q%27%28w%29). Соответственно веса меняются по
+правилу:
+
+![](http://latex.codecogs.com/svg.latex?w%3A%3Dw-%5Ceta%20Q%27%28w%29)
+
+или
+
+![](http://latex.codecogs.com/svg.latex?w%3A%3Dw-%5Ceta%5Csum_%7Bi%3D1%7D%5E%7B%5Cell%7D%5Cmathcal%7BL%7D%27%28%5Clangle%20w%2Cx_i%20%5Crangle%20y_i%29x_iy_i),
+
+где
+![](http://latex.codecogs.com/svg.latex?%5Ceta%3E0)
+– __темп обучения__. Чтобы не проскочить локальный минимум темп обучания принято
+полагать небольшим. Однако, при слишком маленьком его значении алгоритм будет
+медленно сходится. Для лучшего результата мы будем постепенно уменьшенать его по ходу
+итераций.
+
+<b>Адаптивный линейный элемент(ADALINE)</b> в качестве функции потерь использует квадратичную функцию:
+
+![](https://camo.githubusercontent.com/8972321c0046dede7d7689f0f75d795c710e90ea/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535436d61746863616c2537424c2537442532384d2532392533442532384d2d31253239253545322533442532382535436c616e676c6525323077253243785f6925323025354372616e676c65253230795f692d3125323925354532)
+
+<b>Функция обновления весов:</b>
+
+![](https://camo.githubusercontent.com/aefe5920605d5b7b56b9ffe17f12f8816a79daae/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f77253344772d2535436574612532382535436c616e676c6525323077253243785f6925323025354372616e676c652d795f69253239785f69)
+
+<b>Персептрон Розенблата</b> в качестве функции потерь использует квадратичную функцию:
+
+![](https://camo.githubusercontent.com/97f2b6593c8f819f61676cb91aefc2a65784a8d4/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535436d61746863616c2537424c2537442533442532382d4d2532395f2b2533442535436d61782532382d4d25324330253239)
+
+<b>Функция обновления весов вычисляется по правило Хебба:</b>
+
+![](https://camo.githubusercontent.com/90d33699a1b3302dc1879c2c7eb823ff940b63f0/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535437465787425374269662532302537442535436c616e676c6525323077253243785f6925323025354372616e676c65253230795f6925334330253230253543746578742537422532307468656e25323025374425323077253341253344772b253543657461253230785f69795f69)
+
+<b>Логистическая регрессия</b> в качестве функции потерь использует квадратичную функцию:
+
+![](https://camo.githubusercontent.com/ee365cf43e497d5a900ef9c367bb83d742bdaecc/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535436d61746863616c2537424c2537442532384d2532392532302533442532302535436c6f675f32253238312532302b253230652535452537422d4d253744253239)
+
+<b>Функция обновления весов:</b>
+
+![](https://camo.githubusercontent.com/c1094cd0e0fefcaa0a2608da4bee189773cd1201/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f77253230253341253344253230772b253543657461253230795f69785f692535437369676d612532382d2535436c616e676c6525323077253243785f6925323025354372616e676c65253230795f69253239)
+
+где ![](https://camo.githubusercontent.com/a169c0ba965ef8fe5740bce9f2cd9d3ce47a5f38/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f7376672e6c617465783f2535437369676d612532387a2532392533442535436672616325374231253744253742312b652535452537422d7a253744253744)
+
+Реализация на R
+```
+normalize <- function(xl) {
+  for (i in 1:(ncol(xl)-1)) xl[,i] <- (xl[,i] - mean(xl[,i])) / sd(xl[,i])
+  return (xl)
+}
+
+margin <- function(w, object, class) w %*% as.matrix(object) * class
+
+adaLoss <- function(m) (1-m)^2
+adaW <- function(w, object, class, eta) w - c(eta) * (w %*% object - class) %*% object
+
+persLoss <- function(m) max(-m,0)
+persW <- function(w, object, class, eta) w + c(eta) * object * class
+
+logLoss <- function(m) log2(1 + exp(-m))
+logW <- function(w, object, class, eta) w + c(eta) * object * class * sigmaZ(c(w %*% object) * class)
+
+sigmaZ <- function(z) 1 / (1 + exp(-z))
+
+gradient <- function(xl, eta, lambda, rule, loss_function, max_cnt, eps_q) {
+  l <- nrow(xl)
+  n <- ncol(xl)
+  w <- matrix(c(runif(n-1, -1/(2*(n-1)), 1/(2*(n-1)))), 1, 3)
+  objects <- xl[,-n]
+  classes <- xl[, n]
+  q <- sum(sapply(1:l, function(i) loss_function(margin(w, objects[i,], classes[i])))) 
+  q_full <- matrix(q, 1, 1)
+  
+  cnt <- 0
+  while (T) {
+    cnt <- cnt + 1
+    margins <- sapply(1:l, function(i) margin(w[cnt,], objects[i,], classes[i]))
+    errors <- which(margins < 0)
+    
+    if (length(errors) > 0) rand <- sample(errors, 1)
+    else rand <- sample(1:l, 1)
+    
+    eps <- loss_function(margin(w[cnt,], objects[rand,], classes[rand]))
+    
+    eta <- 1 / (objects[rand,] %*% objects[rand,])^2
+
+    w <- rbind(w, rule(w[cnt,], objects[rand,], classes[rand], eta))
+    
+    q_prev <- q
+    q <- (1 - lambda) * q + lambda * eps
+    q_full <- rbind(q_full, q)
+    
+    if (abs(q_prev - q) / max(q_prev, q) <= eps_q) break
+    else if (cnt == max_cnt) break
+  }
+  w <- cbind(w, q_full)
+  return (w)
+}
+```
+
+Визуализация работы линейных алгоритмов при помощи <a href="https://kompot-vjacovich.shinyapps.io/Linear/">shiny</a>
+
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/Linear/Classification_Linear.png)
 
 <a href="#content">Вернуться к содержанию</a>
