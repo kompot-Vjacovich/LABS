@@ -549,7 +549,7 @@ gausian <- function(x, M, D){
 
 Визуализация работы алгоритма при помощи <a href="https://kompot-vjacovich.shinyapps.io/LDFisher/">shiny</a>
 
-![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/Plug-in/Classification_LDF.png)
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/Bayes/LDF/Classification_LDF.png)
 
 <a href="#content">Вернуться к содержанию</a>
 
@@ -695,6 +695,6 @@ gradient <- function(xl, eta, lambda, rule, loss_function, max_cnt, eps_q) {
 
 Визуализация работы линейных алгоритмов при помощи <a href="https://kompot-vjacovich.shinyapps.io/Linear/">shiny</a>
 
-![](https://github.com/kompot-Vjacovich/LABS/blob/master/Linear/Classification_Linear.png)
+![](https://github.com/kompot-Vjacovich/LABS/blob/master/Linear/Classification_linear.png)
 
 <a href="#content">Вернуться к содержанию</a>
