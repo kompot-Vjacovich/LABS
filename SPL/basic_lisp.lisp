@@ -245,8 +245,54 @@
 
 (defun brothers(x y)
     (cond
-        ((= (get x 'mom) (get y 'mom)) T)
-        ((= (get x 'dad) (get y 'dad)) T)
+        ((equal (get x 'dad) (get y 'dad)) T)
+        ((equal (get x 'mom) (get y 'mom)) T)      
         (T nil)
     )
 )
+
+(set_parents 'ab 'a 'b)
+(set_parents 'cd 'c 'd)
+(set_parents 'dc 'c 'd)
+(set_parents 'ef 'e 'f)
+(set_parents 'fg 'g 'f)
+
+(print "Задание 46")
+(print (parents 'ef))
+(print (brothers 'ab 'cd))
+(print (brothers 'dc 'cd))
+(print (brothers 'ef 'cd))
+(print (brothers 'ef 'fg))
+
+
+;; ------------------------------------
+
+;; Задание 48
+;Функция GET возвращает в качестве результата NIL в том случае, 
+;;если у символа нет данного свойства, либо если значением этого свойства является NIL.
+;;Следовательно, функцией GET нельзя проверить, есть ли некоторое свойство в списке свойств. 
+;;Напишите предикат (ИМЕЕТ-СВОЙСТВО символ свойство), который проверяет, обладает ли символ данным свойством.
+
+(defun HasProp(x prop)
+  (FindProp prop (symbol-plist x))
+)
+
+
+(defun FindProp(prop list)
+  (cond
+      ((null list) nil)
+      ((equal prop (car list)) T)
+      (T (FindProp prop (cddr list)))
+  )
+)
+
+(setf (get 'Smth 'prop1) 1)
+(setf (get 'Smth 'prop2) 2)
+(setf (get 'Smth 'prop3) 'three)
+
+(print "Задание 48")
+(print (HasProp 'Smth 'prop1))
+(print (HasProp 'Smth 'prop2))
+(print (HasProp 'Smth 'prop3))
+(print (HasProp 'Smth 'prop4))
+(print (HasProp 'Smth2 'prop4))
