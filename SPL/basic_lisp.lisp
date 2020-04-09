@@ -114,6 +114,40 @@
 
 ;; ------------------------------------
 
+;; Задание 17
+;; Определите функцию, которая осуществляет всевозможные перестановки списка.
+
+(defun ins-in-all-pos (a l r)
+  (cond 
+      ((null r) (list (append l (list a))))
+      (t
+          (cons 
+               (append l (list a) r) 
+               (ins-in-all-pos a (append l (list (car r))) (cdr r))
+           )
+       )
+   )
+)
+ 
+(defun all-perms (lst)
+  (cond 
+      ((null (cdr lst)) (list lst))
+      (t 
+           (apply 'append (mapcar (lambda (x) (ins-in-all-pos (car lst) nil x)) (all-perms (cdr lst))))
+       )
+   )
+)
+
+(print "Задание 17")
+(print "Case1: (1 2 3 4)")
+(print(all-perms '(1 2 3 4)))
+(print "Case2: (NIL)")
+(print(all-perms '()))
+(print "Case3: (1)")
+(print(all-perms '(1)))
+
+;; ------------------------------------
+
 ;; Задание 22 - принято
 ;; Определите функцию, которая обращает список (а b с) и разбивает его на
 ;; уровни (((с) b) а).
@@ -290,8 +324,11 @@
 (print (parents 'ef))
 (print "Case2: brothers ab cd?")
 (print (brothers 'ab 'cd))
+(print "Case3: brothers dc cd?")
 (print (brothers 'dc 'cd))
+(print "Case4: brothers ef cd?")
 (print (brothers 'ef 'cd))
+(print "Case5: brothers ef fg?")
 (print (brothers 'ef 'fg))
 
 
