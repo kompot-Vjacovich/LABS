@@ -1,73 +1,6 @@
 ;; Иванча Николай
 ;; Вариант 7
 
-;; Задание 5 - принято
-;; Определите функцию, которая увеличивает элементы исходного списка на единицу
-(defun list-incr (list)
-    (cond
-        ((null list) nil)
-        (t 
-            (cons 
-                (+ (car list) 1) 
-                (list-incr (cdr list))
-            )
-        )
-    )
-)
-(print "Задание 5")
-(print "Case1: (2 3 4 6)")
-(print(list-incr '(2 3 4 6)))
-(print "Case2: (NIL)")
-(print(list-incr ()))
-(print "Case3: (-1 0 -20)")
-(print(list-incr '(-1 0 -20)))
-
-;;------------------------------------
-
-;; Задание 9 - принято
-;; Определите функцию, разделяющую исходный список на два подсписка. В
-;; первый из них должны попасть элементы с нечетными номерами, во второй —
-;; элементы с четными номерами.
-
-(defun list-split (list)
-    (cond
-        ((null list) '(nil nil))
-        (t
-             ((lambda (lst e1 e2)
-                 (cons
-                    (cons
-                        e1 (car lst)
-                    )
-                    (cond
-                        ((null e2) (cdr lst))
-                        (t
-                            (cons
-                                (cons
-                                   e2 (cadr lst)
-                                )
-                                nil
-                            )
-                        )
-                    )
-                )
-            )
-            (list-split(cddr list)) (car list) (cadr list))
-        )
-    )
-)
-
-(print "Задание 9")
-(print "Case1: (2 3 4 6)")
-(print(list-split '(2 3 4 6)))
-(print "Case2: (NIL)")
-(print(list-split '()))
-(print "Case3: (-1 0 -20)")
-(print(list-split '(-1 0 -20)))
-(print "Case4: (5)")
-(print(list-split '(5)))
-
-;; ------------------------------------
-
 ;; Задание 11 - исправил: соединил две функции в одну
 ;; Определите функцию, осуществляющую разделение исходного списка на два
 ;; подсписка. В первый из них должно попасть указанное количество элементов
@@ -155,6 +88,37 @@
 (print(all-perms '()))
 (print "Case3: (1)")
 (print(all-perms '(1)))
+
+;; ------------------------------------
+
+;; Задание 35 - исправил: переписал функцию contain
+;;Определите функцию ПОДМНОЖЕСТВО, которая проверяет, 
+;;является ли одно множество подмножеством другого. 
+;;Определите также СОБСТВЕННОЕ-ПОДМНОЖЕСТВО.
+
+(defun contain (str A)
+    (cond
+        ((null str) nil)
+        ((or (eq (car str) A) (contain (cdr str) A)) T)
+    )
+)
+
+(defun strstr (str substr)
+    (cond
+        ((null substr) T)
+        ((and (contain str (car substr)) (strstr str (cdr substr))) T)
+    )
+)
+
+(print "Задание 35")
+(print "Case1: (1 2 3 4 5) (7 8 9)")
+(print (strstr '(1 2 3 4 5) '(7 8 9)))
+(print "Case2: (NIL) (7 8 9)")
+(print (strstr '() '(7 8 9)))
+(print "Case3: (1 2 3 4 5) (NIL)")
+(print (strstr '(1 2 3 4 5) '()))
+(print "Case4: (1 2 3 4 5) (3 4 5)")
+(print (strstr '(1 2 3 4 5) '(3 4 5)))
 
 ;; ------------------------------------
 
@@ -262,37 +226,6 @@
 
 ;; ------------------------------------
 
-;; Задание 35 - исправил: переписал функцию contain
-;;Определите функцию ПОДМНОЖЕСТВО, которая проверяет, 
-;;является ли одно множество подмножеством другого. 
-;;Определите также СОБСТВЕННОЕ-ПОДМНОЖЕСТВО.
-
-(defun contain (str A)
-    (cond
-        ((null str) nil)
-        ((or (eq (car str) A) (contain (cdr str) A)) T)
-    )
-)
-
-(defun strstr (str substr)
-    (cond
-        ((null substr) T)
-        ((and (contain str (car substr)) (strstr str (cdr substr))) T)
-    )
-)
-
-(print "Задание 35")
-(print "Case1: (1 2 3 4 5) (7 8 9)")
-(print (strstr '(1 2 3 4 5) '(7 8 9)))
-(print "Case2: (NIL) (7 8 9)")
-(print (strstr '() '(7 8 9)))
-(print "Case3: (1 2 3 4 5) (NIL)")
-(print (strstr '(1 2 3 4 5) '()))
-(print "Case4: (1 2 3 4 5) (3 4 5)")
-(print (strstr '(1 2 3 4 5) '(3 4 5)))
-
-;; ------------------------------------
-
 ;; Задание 46 - принято
 ;;Предположим, что отец и мать некоторого лица, 
 ;;хранятся как значения соответствующих свойств у символа, обозначающего это лицо. 
@@ -373,3 +306,70 @@
 (print (HasProp 'Smth 'prop3))
 (print (HasProp 'Smth 'prop4))
 (print (HasProp 'Smth2 'prop4))
+
+;; ------------------------------------
+
+ ;; Задание 5 - принято
+;; Определите функцию, которая увеличивает элементы исходного списка на единицу
+(defun list-incr (list)
+    (cond
+        ((null list) nil)
+        (t 
+            (cons 
+                (+ (car list) 1) 
+                (list-incr (cdr list))
+            )
+        )
+    )
+)
+(print "Задание 5")
+(print "Case1: (2 3 4 6)")
+(print(list-incr '(2 3 4 6)))
+(print "Case2: (NIL)")
+(print(list-incr ()))
+(print "Case3: (-1 0 -20)")
+(print(list-incr '(-1 0 -20)))
+
+;;------------------------------------
+
+;; Задание 9 - принято
+;; Определите функцию, разделяющую исходный список на два подсписка. В
+;; первый из них должны попасть элементы с нечетными номерами, во второй —
+;; элементы с четными номерами.
+
+(defun list-split (list)
+    (cond
+        ((null list) '(nil nil))
+        (t
+             ((lambda (lst e1 e2)
+                 (cons
+                    (cons
+                        e1 (car lst)
+                    )
+                    (cond
+                        ((null e2) (cdr lst))
+                        (t
+                            (cons
+                                (cons
+                                   e2 (cadr lst)
+                                )
+                                nil
+                            )
+                        )
+                    )
+                )
+            )
+            (list-split(cddr list)) (car list) (cadr list))
+        )
+    )
+)
+
+(print "Задание 9")
+(print "Case1: (2 3 4 6)")
+(print(list-split '(2 3 4 6)))
+(print "Case2: (NIL)")
+(print(list-split '()))
+(print "Case3: (-1 0 -20)")
+(print(list-split '(-1 0 -20)))
+(print "Case4: (5)")
+(print(list-split '(5)))
