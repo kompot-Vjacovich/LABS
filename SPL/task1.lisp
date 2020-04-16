@@ -10,25 +10,30 @@
     (cond
         ((null list) '(nil nil))
         (t
-             ((lambda (lst e1 e2)
-                (cons
-                    (cons
-                        e1 (car lst)
+             ((lambda (lst e1 n)
+                (cond
+                    ((> n 0)
+                         (cons
+                             (cons
+                                  e1 (car lst)
+                             )
+                             (cdr lst)
+                         )
                     )
-                    (cond
-                        ((null e2) (cdr lst))
-                        (t
-                            (cons
-                                (cons
-                                    e2 (cadr lst)
-                                )
-                                nil
-                            )
+                    ((<= n 0)
+                         (cons
+                             (car lst)
+                             (cons
+                                  (cons 
+                                      e1 (cadr lst)
+                                  )
+                                  nil
+                             )
                         )
                     )
                 )
              )
-              (list-split(cddr list)) (car list) (cadr list))
+              (list-split2 (cdr list) (- n 1)) (car list) n)
         )
     )
 )
