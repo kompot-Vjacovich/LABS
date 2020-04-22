@@ -101,29 +101,29 @@
 ;;является ли одно множество подмножеством другого. 
 ;;Определите также СОБСТВЕННОЕ-ПОДМНОЖЕСТВО.
 
-(defun contain (str A)
+(defun contain (list A)
     (cond
-        ((null str) nil)
-        ((or (eq (car str) A) (contain (cdr str) A)) T)
+        ((null list) nil)
+        ((or (eq (car list) A) (contain (cdr list) A)) T)
     )
 )
 
-(defun strstr (str substr)
+(defun findlist (list sublist)
     (cond
-        ((null substr) T)
-        ((and (contain str (car substr)) (strstr str (cdr substr))) T)
+        ((null sublist) T)
+        ((and (contain list (car sublist)) (findlist list (cdr sublist))) T)
     )
 )
 
 (print "Задание 35")
 (print "Case1: (1 2 3 4 5) (7 8 9)")
-(print (strstr '(1 2 3 4 5) '(7 8 9)))
+(print (findlist '(1 2 3 4 5) '(7 8 9)))
 (print "Case2: (NIL) (7 8 9)")
-(print (strstr '() '(7 8 9)))
+(print (findlist '() '(7 8 9)))
 (print "Case3: (1 2 3 4 5) (NIL)")
-(print (strstr '(1 2 3 4 5) '()))
+(print (findlist '(1 2 3 4 5) '()))
 (print "Case4: (1 2 3 4 5) (3 4 5)")
-(print (strstr '(1 2 3 4 5) '(3 4 5)))
+(print (findlist '(1 2 3 4 5) '(3 4 5)))
 
 ;; ------------------------------------
 
