@@ -98,3 +98,18 @@
 (print(multfun '(* / -) '(2 3 4 6)))
 (print "Case3: (max min) (2 3 4 6)")
 (print(multfun '(max min) '(2 3 4 6)))
+
+;;------------------------------------
+
+;; Задание 13
+;; Определите функцию, которая возвращает своё определение
+(setq retITself
+    '(
+      (lambda (x) (list x (list 'quote x)))
+      '(lambda (x) (list x (list 'quote x)))
+     )
+)
+
+(print "Задание 13")
+(print "Case1:")
+(print retITself)
