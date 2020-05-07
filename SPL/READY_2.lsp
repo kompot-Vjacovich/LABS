@@ -113,3 +113,33 @@
 (print "Задание 13")
 (print "Case1:")
 (print retITself)
+
+;;------------------------------------
+
+;; Задание 9
+;; Генератор чисел Фибоначчи
+(defun fib-gen ()
+     (let ( (x 0) (y 1) )
+         (lambda () 
+                 (setq x (+ y (setq y x)))
+         )
+     )
+) 
+
+(defun fib (n f)
+    (cond 
+        ((= n 0) nil)
+        (t
+             (cons (funcall f) (fib (- n 1) f))
+         )
+    )
+)
+
+(setq f1 (fib-gen))
+(setq f2 (fib-gen))
+
+(print "Задание 9")
+(print "Case1: fib 4")
+(print (fib '4 f1))
+(print "Case2: fib 6")
+(print (fib '6 f2))
