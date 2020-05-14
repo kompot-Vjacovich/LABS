@@ -53,3 +53,21 @@
 (print(fif 5 -1 0 1))
 
 ;; ------------------------------------
+
+(defmacro pop1 (stack)
+    `(prog1 (car ,stack)
+        (setq ,stack (cdr ,stack))
+    )
+)
+(setq stack '(1 2 3 4))
+(print "Задание 5: ")
+(print stack)
+(print "Case1:")
+(print(pop1 stack))
+(print stack)
+(print "Case2:")
+(print(pop1 stack))
+(print stack)
+(print "Case3:")
+(print(pop1 stack))
+(print stack)
