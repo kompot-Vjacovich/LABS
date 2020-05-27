@@ -242,3 +242,8 @@ sort([1, 5, 3, 12, 2]) { $0 > $1 }
 |Скорость          |В 8.4 раза быстрее чем Python|Медленный|
 |Синтаксис|   		Максимально простой|Максимально простой|
 |IDE		|Python IDLE |		Playground|
+
+## Полезные ссылки
+[Welcome to Swift.org](https://swift.org)
+[Swift. Язык программирования с открытым кодом.](https://www.apple.com/ru/swift/)
+[Язык программирования Swift.](https://habr.com/ru/company/apphud/blog/225841/)
