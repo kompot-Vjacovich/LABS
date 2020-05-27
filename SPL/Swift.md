@@ -245,5 +245,7 @@ sort([1, 5, 3, 12, 2]) { $0 > $1 }
 
 ## Полезные ссылки
 [Welcome to Swift.org](https://swift.org)
+
 [Swift. Язык программирования с открытым кодом.](https://www.apple.com/ru/swift/)
+
 [Язык программирования Swift.](https://habr.com/ru/company/apphud/blog/225841/)
