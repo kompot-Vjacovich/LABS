@@ -88,5 +88,46 @@
          (test_math)
          (test_mix)))
 
-(run 'test_all)
+(defparameter *task-code* "str : y")
+
+(defun split (string &optional (split-character #\Space))
+  (let ((result '())
+        (stream (make-string-output-stream)))
+    (loop for char across string
+          if (char= char split-character)
+          do (push (get-output-stream-string stream) result)
+          else
+          do (write-char char stream))
+    (push (get-output-stream-string stream) result)
+    (nreverse result)))
+
+(defun delSymb (string &optional (symb #\Space))
+    (let ((result '())
+          (stream (make-string-output-stream)))
+         (loop for char across string
+               if (not (char= char symb))
+               do (write-char char stream))
+         (push (get-output-stream-string stream) result)
+         (car (nreverse result))))
+
+(defvar *func-name* nil)
+
+(defun parseToLisp (string)
+    (progn (setf tmp (split string #\:))
+          (setf def (delSymb (car tmp)))
+          (setf test (cons 
+                 (read-from-string (car (last (split def #\_))))
+                 (read-from-string (cadr tmp))))
+          (setf name (read-from-string (car (split def #\_))))
+          (setf ans (read-from-string (delSymb (car (last tmp)))))
+          (setf result (= (eval test) (eval ans)))
+          ;(setf *func-name* name)
+          ;(deftest name () (check (= (eval test) (eval ans))))
+          (check (= (eval test) (eval ans)))))
+
+(parseToLisp "test_+ : (2 3) : 4")
+;(print (read-from-string "+"))
+; test_+ : (1 2) : 3
+
+;(run 'test_all)
 ;(print (macroexpand '(combine (1 2 3 4))))
