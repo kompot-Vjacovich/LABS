@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import pkutil
+import traceback
 
 def check_sys():
 	reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -19,11 +19,28 @@ def parseScript(filename):
 	return modules
 
 if __name__ == '__main__':
-	filepath = "test.py"
+	if len(sys.argv) < 2:
+		print(f"Usage: {sys.argv[0]} <path/to/file.py>")
+		sys.exit(1)
+	filepath = sys.argv[1]
+
 	imported = parseScript(filepath)
-	installed = check_sys()
-	result = list(set(imported) - set(installed))
-	# print(installed)
-	# print(imported)
-	print(pkgutil.iter_modules())
-	print(result)
+
+	installed = list(set(check_sys()) | set(sys.builtin_module_names))
+	missing = list(set(imported) - set(installed))
+	
+	errors = []
+	cnt = 0
+	for lib in missing:
+		try:
+			res = subprocess.run(['pip', 'install', lib], capture_output=True)
+		except:
+			errors.append(traceback.format_exc())
+		else: 
+			cnt += 1
+
+	print(f"{cnt} scripts were installed")
+	if len(missing) - cnt:
+		print(f"{len(missing) - cnt} scripts were not installed")
+	for e in errors:
+		print(e)
